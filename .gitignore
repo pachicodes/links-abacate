@@ -11,6 +11,12 @@ yarn.lock
 *.sqlite
 *.sqlite3
 
+# Build files
+.vercel
+.next/
+dist/
+build/
+
 # Logs
 logs
 *.log
