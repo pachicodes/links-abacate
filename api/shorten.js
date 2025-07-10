@@ -11,7 +11,7 @@ links.set('gh-pachi', {
     original_url: 'https://github.com/pachicodes',
     short_code: 'gh-pachi',
     created_at: new Date().toISOString(),
-    clicks: 15
+    clicks: 8
 });
 
 function generateShortCode() {

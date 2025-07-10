@@ -8,7 +8,7 @@ links.set('gh-pachi', {
     original_url: 'https://github.com/pachicodes',
     short_code: 'gh-pachi',
     created_at: new Date().toISOString(),
-    clicks: 15
+    clicks: 8
 });
 
 links.set('rickroll', {
@@ -16,7 +16,7 @@ links.set('rickroll', {
     original_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     short_code: 'rickroll',
     created_at: new Date().toISOString(),
-    clicks: 42
+    clicks: 5
 });
 
 module.exports = async (req, res) => {
