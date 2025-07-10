@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Links Abacate 🥑</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body x-data="registerApp()">
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">
+                <a href="/">🥑 Links Abacate</a>
+            </h1>
+            <nav class="nav">
+                <a href="/" class="nav-link">Início</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="login.html" class="nav-link">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Card de Registro -->
+            <div class="login-card">
+                <div class="login-header">
+                    <h2>🎉 Criar sua conta</h2>
+                    <p>Junte-se ao Links Abacate e gerencie seus links</p>
+                </div>
+
+                <!-- Mensagens de erro/sucesso -->
+                <div x-show="mensagem" 
+                     x-transition
+                     class="message"
+                     :class="{'message-error': tipoMensagem === 'error', 'message-success': tipoMensagem === 'success'}">
+                    <span x-text="mensagem"></span>
+                </div>
+
+                <!-- Formulário de Registro -->
+                <form @submit.prevent="fazerRegistro" class="login-form">
+                    <div class="form-group">
+                        <label for="nome" class="form-label">👤 Nome</label>
+                        <input 
+                            type="text" 
+                            id="nome" 
+                            x-model="dadosRegistro.nome"
+                            class="form-input"
+                            placeholder="Seu nome"
+                            required
+                            minlength="2"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">📧 Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            x-model="dadosRegistro.email"
+                            class="form-input"
+                            placeholder="seu@email.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="senha" class="form-label">🔒 Senha</label>
+                        <input 
+                            type="password" 
+                            id="senha" 
+                            x-model="dadosRegistro.senha"
+                            class="form-input"
+                            placeholder="Mínimo 6 caracteres"
+                            required
+                            minlength="6"
+                            @input="validarSenha"
+                        >
+                        <div class="password-strength" x-show="dadosRegistro.senha">
+                            <div class="strength-bar">
+                                <div class="strength-fill" :style="`width: ${forcaSenha}%`" :class="classeForça"></div>
+                            </div>
+                            <span class="strength-text" x-text="textoForca" :class="classeForça"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmarSenha" class="form-label">🔐 Confirmar Senha</label>
+                        <input 
+                            type="password" 
+                            id="confirmarSenha" 
+                            x-model="dadosRegistro.confirmarSenha"
+                            class="form-input"
+                            placeholder="Digite a senha novamente"
+                            required
+                            @input="validarConfirmacao"
+                        >
+                        <span x-show="!senhasCombinam && dadosRegistro.confirmarSenha" 
+                              class="form-error">❌ Senhas não coincidem</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" x-model="dadosRegistro.aceitarTermos" required>
+                            <span class="checkbox-text">
+                                📜 Aceito os <a href="#" class="link" @click="mostrarTermos">Termos de Uso</a> 
+                                e <a href="#" class="link" @click="mostrarPrivacidade">Política de Privacidade</a>
+                            </span>
+                        </label>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        class="btn btn-primary"
+                        :disabled="carregando || !formularioValido"
+                        :class="{'btn-loading': carregando}"
+                    >
+                        <span x-show="!carregando">🚀 Criar Conta</span>
+                        <span x-show="carregando">⏳ Criando...</span>
+                    </button>
+                </form>
+
+                <!-- Links úteis -->
+                <div class="login-footer">
+                    <p>Já tem uma conta? <a href="login.html" class="link">Fazer login</a></p>
+                </div>
+            </div>
+
+            <!-- Benefícios -->
+            <div class="info-card">
+                <h3>🎯 O que você ganha:</h3>
+                <ul class="benefits-list">
+                    <li>🔗 Links encurtados ilimitados</li>
+                    <li>📊 Analytics detalhados</li>
+                    <li>📈 Gráficos de cliques em tempo real</li>
+                    <li>🌍 Dados de localização dos visitantes</li>
+                    <li>⚙️ Painel de controle personalizado</li>
+                    <li>🔒 Dados 100% seguros</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Links Abacate 🥑 - Encurtador simples e poderoso</p>
+        </div>
+    </footer>
+
+    <script>
+        function registerApp() {
+            return {
+                dadosRegistro: {
+                    nome: '',
+                    email: '',
+                    senha: '',
+                    confirmarSenha: '',
+                    aceitarTermos: false
+                },
+                carregando: false,
+                mensagem: '',
+                tipoMensagem: 'info',
+                forcaSenha: 0,
+                textoForca: '',
+                classeForça: '',
+                senhasCombinam: true,
+
+                get formularioValido() {
+                    return this.dadosRegistro.nome && 
+                           this.dadosRegistro.email && 
+                           this.dadosRegistro.senha.length >= 6 && 
+                           this.senhasCombinam && 
+                           this.dadosRegistro.aceitarTermos;
+                },
+
+                validarSenha() {
+                    const senha = this.dadosRegistro.senha;
+                    let pontos = 0;
+                    
+                    // Critérios de força da senha
+                    if (senha.length >= 6) pontos += 20;
+                    if (senha.length >= 8) pontos += 20;
+                    if (/[a-z]/.test(senha)) pontos += 20;
+                    if (/[A-Z]/.test(senha)) pontos += 20;
+                    if (/[0-9]/.test(senha)) pontos += 10;
+                    if (/[^a-zA-Z0-9]/.test(senha)) pontos += 10;
+                    
+                    this.forcaSenha = pontos;
+                    
+                    if (pontos < 40) {
+                        this.textoForca = 'Fraca';
+                        this.classeForça = 'weak';
+                    } else if (pontos < 70) {
+                        this.textoForca = 'Média';
+                        this.classeForça = 'medium';
+                    } else {
+                        this.textoForca = 'Forte';
+                        this.classeForça = 'strong';
+                    }
+                },
+
+                validarConfirmacao() {
+                    this.senhasCombinam = this.dadosRegistro.senha === this.dadosRegistro.confirmarSenha;
+                },
+
+                async fazerRegistro() {
+                    // Validações
+                    if (!this.formularioValido) {
+                        this.mostrarMensagem('Por favor, preencha todos os campos corretamente', 'error');
+                        return;
+                    }
+
+                    this.carregando = true;
+                    this.mensagem = '';
+
+                    try {
+                        const response = await fetch('/api/auth/register', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                nome: this.dadosRegistro.nome,
+                                email: this.dadosRegistro.email,
+                                senha: this.dadosRegistro.senha
+                            })
+                        });
+
+                        const resultado = await response.json();
+
+                        if (response.ok) {
+                            this.mostrarMensagem('Conta criada com sucesso! Redirecionando para login...', 'success');
+                            
+                            // Redirecionar para login após 2s
+                            setTimeout(() => {
+                                window.location.href = '/login.html';
+                            }, 2000);
+                        } else {
+                            this.mostrarMensagem(resultado.erro || 'Erro ao criar conta', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Erro no registro:', error);
+                        this.mostrarMensagem('Erro de conexão. Tente novamente.', 'error');
+                    } finally {
+                        this.carregando = false;
+                    }
+                },
+
+                mostrarTermos() {
+                    this.mostrarMensagem('Termos de Uso: Use nosso serviço de forma responsável e legal.', 'info');
+                },
+
+                mostrarPrivacidade() {
+                    this.mostrarMensagem('Política de Privacidade: Seus dados são privados e seguros conosco.', 'info');
+                },
+
+                mostrarMensagem(texto, tipo = 'info') {
+                    this.mensagem = texto;
+                    this.tipoMensagem = tipo;
+                    
+                    // Limpar mensagem após 5s se não for de sucesso
+                    if (tipo !== 'success') {
+                        setTimeout(() => {
+                            this.mensagem = '';
+                        }, 5000);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

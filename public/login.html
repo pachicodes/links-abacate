@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Links Abacate 🥑</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body x-data="loginApp()">
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">
+                <a href="/">🥑 Links Abacate</a>
+            </h1>
+            <nav class="nav">
+                <a href="/" class="nav-link">Início</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="register.html" class="nav-link">Registrar</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Card de Login -->
+            <div class="login-card">
+                <div class="login-header">
+                    <h2>🔑 Entrar na sua conta</h2>
+                    <p>Acesse seus links encurtados e estatísticas</p>
+                </div>
+
+                <!-- Mensagens de erro/sucesso -->
+                <div x-show="mensagem" 
+                     x-transition
+                     class="message"
+                     :class="{'message-error': tipoMensagem === 'error', 'message-success': tipoMensagem === 'success'}">
+                    <span x-text="mensagem"></span>
+                </div>
+
+                <!-- Formulário de Login -->
+                <form @submit.prevent="fazerLogin" class="login-form">
+                    <div class="form-group">
+                        <label for="email" class="form-label">📧 Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            x-model="dadosLogin.email"
+                            class="form-input"
+                            placeholder="seu@email.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="senha" class="form-label">🔒 Senha</label>
+                        <input 
+                            type="password" 
+                            id="senha" 
+                            x-model="dadosLogin.senha"
+                            class="form-input"
+                            placeholder="Sua senha"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" x-model="dadosLogin.lembrarMe">
+                            <span class="checkbox-text">🧠 Lembrar de mim</span>
+                        </label>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        class="btn btn-primary"
+                        :disabled="carregando"
+                        :class="{'btn-loading': carregando}"
+                    >
+                        <span x-show="!carregando">🚀 Entrar</span>
+                        <span x-show="carregando">⏳ Entrando...</span>
+                    </button>
+                </form>
+
+                <!-- Links úteis -->
+                <div class="login-footer">
+                    <p>Não tem uma conta? <a href="register.html" class="link">Criar conta</a></p>
+                    <p><a href="#" class="link" @click="esqueceuSenha">🤔 Esqueci minha senha</a></p>
+                </div>
+            </div>
+
+            <!-- Demo/Info -->
+            <div class="info-card">
+                <h3>🎯 Por que fazer login?</h3>
+                <ul class="benefits-list">
+                    <li>📊 Veja estatísticas detalhadas dos seus links</li>
+                    <li>🔗 Gerencie todos os seus links em um só lugar</li>
+                    <li>📈 Acompanhe cliques em tempo real</li>
+                    <li>⚙️ Personalize seus links curtos</li>
+                    <li>🔒 Mantenha seus dados seguros</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Links Abacate 🥑 - Encurtador simples e poderoso</p>
+        </div>
+    </footer>
+
+    <script>
+        function loginApp() {
+            return {
+                dadosLogin: {
+                    email: '',
+                    senha: '',
+                    lembrarMe: false
+                },
+                carregando: false,
+                mensagem: '',
+                tipoMensagem: 'info',
+
+                async fazerLogin() {
+                    // Validação básica
+                    if (!this.dadosLogin.email || !this.dadosLogin.senha) {
+                        this.mostrarMensagem('Por favor, preencha todos os campos', 'error');
+                        return;
+                    }
+
+                    this.carregando = true;
+                    this.mensagem = '';
+
+                    try {
+                        const response = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                email: this.dadosLogin.email,
+                                senha: this.dadosLogin.senha,
+                                lembrarMe: this.dadosLogin.lembrarMe
+                            })
+                        });
+
+                        const resultado = await response.json();
+
+                        if (response.ok) {
+                            this.mostrarMensagem('Login realizado com sucesso! Redirecionando...', 'success');
+                            
+                            // Salvar token se necessário
+                            if (resultado.token) {
+                                localStorage.setItem('authToken', resultado.token);
+                            }
+
+                            // Redirecionar para dashboard após 1.5s
+                            setTimeout(() => {
+                                window.location.href = '/dashboard.html';
+                            }, 1500);
+                        } else {
+                            this.mostrarMensagem(resultado.erro || 'Erro ao fazer login', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Erro no login:', error);
+                        this.mostrarMensagem('Erro de conexão. Tente novamente.', 'error');
+                    } finally {
+                        this.carregando = false;
+                    }
+                },
+
+                esqueceuSenha() {
+                    this.mostrarMensagem('Funcionalidade em desenvolvimento! Entre em contato conosco.', 'info');
+                },
+
+                mostrarMensagem(texto, tipo = 'info') {
+                    this.mensagem = texto;
+                    this.tipoMensagem = tipo;
+                    
+                    // Limpar mensagem após 5s se não for de sucesso
+                    if (tipo !== 'success') {
+                        setTimeout(() => {
+                            this.mensagem = '';
+                        }, 5000);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
