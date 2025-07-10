@@ -19,7 +19,7 @@
   - [ ] API `/api/auth/login` - Login de usuários
   - [ ] API `/api/auth/register` - Registro de usuários
   - [ ] API `/api/auth/logout` - Logout
-  - [ ] Sistema de sessões/JWT tokens
+  - [ ] Sistema de sessões/JWT tokens (ou Supabase Auth)
   - [ ] Middleware de autenticação
 
 - [ ] **🗄️ Banco de dados de usuários**
@@ -70,9 +70,9 @@
 ### 🚀 **Performance e Deploy (Prioridade Média)**
 
 - [ ] **🗄️ Migrar para banco externo**
-  - [ ] PostgreSQL (Supabase/Railway/PlanetScale)
-  - [ ] OU MongoDB (MongoDB Atlas)
-  - [ ] OU FaunaDB (serverless)
+  - [ ] **Supabase** (PostgreSQL + Auth integrado)
+  - [ ] Configurar projeto no Supabase
+  - [ ] Migrar dados do SQLite para Supabase
   - [ ] Configurar variáveis de ambiente
 
 - [ ] **⚡ Otimizações**
