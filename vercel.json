@@ -1,24 +1,32 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/server.js",
-      "use": "@vercel/node"
+  "functions": {
+    "api/shorten.js": {
+      "maxDuration": 10
+    },
+    "api/stats.js": {
+      "maxDuration": 10
+    },
+    "api/[...slug].js": {
+      "maxDuration": 10
     }
-  ],
+  },
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/server.js"
+      "src": "/api/shorten",
+      "dest": "/api/shorten.js"
+    },
+    {
+      "src": "/api/stats",
+      "dest": "/api/stats.js"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/api/[...slug].js?slug=dashboard"
     },
     {
       "src": "/(.*)",
-      "dest": "/api/server.js"
+      "dest": "/api/[...slug].js?slug=$1"
     }
-  ],
-  "functions": {
-    "api/server.js": {
-      "maxDuration": 10
-    }
-  }
+  ]
 }

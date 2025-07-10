@@ -17,40 +17,53 @@ function urlShortener() {
             this.result = null;
 
             try {
-                console.log('Enviando request para:', '/api/shorten');
-                console.log('URL a ser encurtada:', this.url);
+                console.log('🔗 Enviando request para:', '/api/shorten');
+                console.log('📝 URL a ser encurtada:', this.url);
                 
                 const response = await fetch('/api/shorten', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({ url: this.url }),
                 });
 
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
+                console.log('📊 Response status:', response.status);
+                console.log('📋 Response headers:', Object.fromEntries(response.headers.entries()));
 
-                // Verificar se a resposta é JSON
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const textResponse = await response.text();
-                    console.error('Resposta não é JSON:', textResponse);
-                    throw new Error('Servidor retornou resposta inválida. Verifique se a API está funcionando.');
+                // Ler resposta como texto primeiro para debug
+                const responseText = await response.text();
+                console.log('📄 Response text:', responseText);
+
+                // Verificar se a resposta parece ser JSON
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('❌ Erro ao fazer parse do JSON:', parseError);
+                    console.error('📄 Resposta recebida:', responseText.substring(0, 200) + '...');
+                    throw new Error('Servidor retornou resposta inválida. Tente novamente.');
                 }
 
-                const data = await response.json();
-                console.log('Response data:', data);
+                console.log('✅ Response data:', data);
 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Erro ao encurtar URL');
+                    throw new Error(data.error || `Erro HTTP ${response.status}`);
                 }
 
                 this.result = data;
                 this.url = '';
+                
+                // Mostrar sucesso
+                showToast('Link encurtado com sucesso! 🎉', 'success');
+                
             } catch (error) {
-                console.error('Erro completo:', error);
+                console.error('💥 Erro completo:', error);
                 this.error = error.message || 'Erro desconhecido ao encurtar URL';
+                
+                // Mostrar erro
+                showToast(this.error, 'error');
             } finally {
                 this.loading = false;
             }
