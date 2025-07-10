@@ -6,6 +6,13 @@ Um encurtador de links moderno e elegante com dashboard completo de analytics.
 ![Versão](https://img.shields.io/badge/Versão-1.0.0-blue)
 ![Licença](https://img.shields.io/badge/Licença-MIT-yellow)
 
+## 🌐 Demo Online
+
+**🚀 [Acesse o Links Abacate](https://links-abacate.vercel.app/)**
+
+- **Página Principal**: https://links-abacate.vercel.app/
+- **Dashboard**: https://links-abacate.vercel.app/dashboard
+
 ## ✨ Recursos
 
 - **🔗 Encurtamento de URLs**: Transforme links longos em URLs curtas e amigáveis
@@ -94,9 +101,22 @@ links-abacate/
 
 ## 🔧 Scripts Disponíveis
 
-- `npm start` - Inicia o servidor em produção
+- `npm start` - Inicia o servidor local com SQLite
 - `npm run dev` - Inicia o servidor em modo desenvolvimento
-- `npm run setup` - Configura o banco de dados inicial
+- `npm run setup` - Configura o banco de dados SQLite local
+- `npm run vercel-build` - Script de build para Vercel
+
+## 🗄️ Banco de Dados
+
+### Desenvolvimento Local
+- **SQLite** - Banco local em arquivo `links.db`
+- Dados persistentes entre reinicializações
+- Execute `npm run setup` para criar tabelas iniciais
+
+### Produção (Vercel)
+- **Armazenamento em memória** - Dados temporários
+- Recomendado migrar para banco externo (MongoDB, PostgreSQL)
+- Dados são resetados a cada deploy
 
 ## 📊 API Endpoints
 
@@ -157,12 +177,23 @@ As cores podem ser personalizadas no arquivo `style.css` através das variáveis
 
 ## 🚀 Deploy
 
-### Heroku
+### Vercel (Recomendado)
+O projeto já está configurado para deploy na Vercel:
+
+1. **Conecte seu repositório** à Vercel
+2. **Configure as variáveis de ambiente** (se necessário)
+3. **Deploy automático** a cada push na branch main
+
+**Site em produção**: [https://links-abacate.vercel.app/](https://links-abacate.vercel.app/)
+
+### Outros Provedores
+
+#### Heroku
 1. Configure as variáveis de ambiente
 2. Use o buildpack do Node.js
 3. Configure o `PORT` conforme necessário
 
-### VPS/Servidor
+#### VPS/Servidor
 1. Configure Node.js no servidor
 2. Use PM2 para gerenciamento de processos
 3. Configure um proxy reverso (Nginx)

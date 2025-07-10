@@ -17,6 +17,9 @@ function urlShortener() {
             this.result = null;
 
             try {
+                console.log('Enviando request para:', '/api/shorten');
+                console.log('URL a ser encurtada:', this.url);
+                
                 const response = await fetch('/api/shorten', {
                     method: 'POST',
                     headers: {
@@ -25,7 +28,19 @@ function urlShortener() {
                     body: JSON.stringify({ url: this.url }),
                 });
 
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+
+                // Verificar se a resposta é JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const textResponse = await response.text();
+                    console.error('Resposta não é JSON:', textResponse);
+                    throw new Error('Servidor retornou resposta inválida. Verifique se a API está funcionando.');
+                }
+
                 const data = await response.json();
+                console.log('Response data:', data);
 
                 if (!response.ok) {
                     throw new Error(data.error || 'Erro ao encurtar URL');
@@ -34,8 +49,8 @@ function urlShortener() {
                 this.result = data;
                 this.url = '';
             } catch (error) {
-                this.error = error.message;
-                console.error('Erro:', error);
+                console.error('Erro completo:', error);
+                this.error = error.message || 'Erro desconhecido ao encurtar URL';
             } finally {
                 this.loading = false;
             }

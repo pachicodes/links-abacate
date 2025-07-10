@@ -186,4 +186,5 @@ app.get('/api/stats/:shortCode', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🥑 Links Abacate rodando na porta ${PORT}`);
     console.log(`📊 Dashboard disponível em: http://localhost:${PORT}/dashboard`);
+    console.log(`🌐 Site em produção: https://links-abacate.vercel.app/`);
 });
