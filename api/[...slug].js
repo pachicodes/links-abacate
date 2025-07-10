@@ -5,22 +5,26 @@ const path = require('path');
 module.exports = async (req, res) => {
     try {
         const { slug } = req.query;
+        const url = req.url;
+        
+        console.log('Requisição recebida:', url, 'slug:', slug);
         
         // Se for uma rota de API, retornar erro
-        if (req.url.startsWith('/api/')) {
+        if (url.startsWith('/api/')) {
             res.setHeader('Content-Type', 'application/json');
             return res.status(404).json({ error: 'API route not found' });
         }
         
-        // Se for um arquivo estático, ignorar
-        if (req.url.includes('.')) {
-            return res.status(404).send('File not found');
+        // Se for um arquivo estático (CSS, JS, imagens), NÃO interceptar
+        if (url.includes('.css') || url.includes('.js') || url.includes('.ico') || url.includes('.png') || url.includes('.jpg') || url.includes('.svg')) {
+            console.log('Arquivo estático ignorado:', url);
+            return res.status(404).send('Static file should be served by Vercel');
         }
         
         // Servir páginas HTML
         let filePath;
         
-        if (!slug || slug.length === 0 || slug[0] === '') {
+        if (!slug || slug.length === 0 || slug[0] === '' || url === '/') {
             // Página principal
             filePath = path.join(process.cwd(), 'public', 'index.html');
         } else if (slug[0] === 'dashboard') {
@@ -29,12 +33,13 @@ module.exports = async (req, res) => {
         } else {
             // Código de redirecionamento - por enquanto redirecionar para página principal
             // Em produção, implementar lógica de redirecionamento
+            console.log('Redirecionamento para código:', slug[0]);
             return res.redirect('/');
         }
         
         if (fs.existsSync(filePath)) {
             const content = fs.readFileSync(filePath, 'utf8');
-            res.setHeader('Content-Type', 'text/html');
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
             return res.status(200).send(content);
         } else {
             return res.status(404).send('Page not found');
