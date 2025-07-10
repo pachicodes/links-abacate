@@ -1,16 +1,15 @@
 {
   "version": 2,
-  "functions": {
-    "api/shorten.js": {
-      "maxDuration": 10
+  "builds": [
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
     },
-    "api/stats.js": {
-      "maxDuration": 10
-    },
-    "api/[...slug].js": {
-      "maxDuration": 10
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/api/shorten",
@@ -21,20 +20,24 @@
       "dest": "/api/stats.js"
     },
     {
-      "src": "/public/(.*)",
-      "dest": "/public/$1"
+      "src": "/style.css",
+      "dest": "/public/style.css"
     },
     {
-      "src": "/(.*\\.(css|js|ico|png|jpg|jpeg|svg|gif|woff|woff2|ttf|eot))",
-      "dest": "/public/$1"
+      "src": "/app.js",
+      "dest": "/public/app.js"
+    },
+    {
+      "src": "/debug.js",
+      "dest": "/public/debug.js"
     },
     {
       "src": "/dashboard",
-      "dest": "/api/[...slug].js?slug=dashboard"
+      "dest": "/public/dashboard.html"
     },
     {
       "src": "/",
-      "dest": "/api/[...slug].js"
+      "dest": "/public/index.html"
     },
     {
       "src": "/(.*)",
