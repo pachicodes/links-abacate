@@ -21,8 +21,20 @@
       "dest": "/api/stats.js"
     },
     {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/(.*\\.(css|js|ico|png|jpg|jpeg|svg|gif|woff|woff2|ttf|eot))",
+      "dest": "/public/$1"
+    },
+    {
       "src": "/dashboard",
       "dest": "/api/[...slug].js?slug=dashboard"
+    },
+    {
+      "src": "/",
+      "dest": "/api/[...slug].js"
     },
     {
       "src": "/(.*)",
