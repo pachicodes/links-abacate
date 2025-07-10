@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Dashboard - Links Abacate</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">🥑</span>
+                <span class="logo-text">Links Abacate</span>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link">Encurtar</a>
+                <a href="/dashboard" class="nav-link active">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main dashboard-main" x-data="dashboard()">
+        <div class="container">
+            <!-- Dashboard Header -->
+            <section class="dashboard-header">
+                <h1 class="dashboard-title">📊 Analytics Dashboard</h1>
+                <p class="dashboard-subtitle">Acompanhe o desempenho dos seus links encurtados</p>
+            </section>
+
+            <!-- Loading State -->
+            <div x-show="loading" class="loading-container">
+                <div class="loading-spinner">⏳</div>
+                <p>Carregando dados...</p>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div x-show="!loading" class="dashboard-content">
+                <!-- Stats Overview -->
+                <section class="stats-overview">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🔗</div>
+                            <div class="stat-content">
+                                <div class="stat-number" x-text="totalLinks"></div>
+                                <div class="stat-label">Links Criados</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">👆</div>
+                            <div class="stat-content">
+                                <div class="stat-number" x-text="totalClicks"></div>
+                                <div class="stat-label">Total de Cliques</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-content">
+                                <div class="stat-number" x-text="averageClicks"></div>
+                                <div class="stat-label">Média por Link</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">🏆</div>
+                            <div class="stat-content">
+                                <div class="stat-number" x-text="topLinkClicks"></div>
+                                <div class="stat-label">Melhor Performance</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Charts Section -->
+                <section class="charts-section">
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <h3 class="chart-title">Cliques ao Longo do Tempo</h3>
+                            <canvas id="clicksChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3 class="chart-title">Top 5 Links</h3>
+                            <canvas id="topLinksChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Links Table -->
+                <section class="links-table-section">
+                    <div class="table-header">
+                        <h3 class="table-title">Todos os Links</h3>
+                        <div class="table-controls">
+                            <input 
+                                type="text" 
+                                x-model="searchTerm"
+                                placeholder="Buscar links..."
+                                class="search-input"
+                            >
+                            <select x-model="sortBy" class="sort-select">
+                                <option value="created_at">Data de Criação</option>
+                                <option value="clicks">Número de Cliques</option>
+                                <option value="original_url">URL Original</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="links-table">
+                            <thead>
+                                <tr>
+                                    <th>URL Original</th>
+                                    <th>Código</th>
+                                    <th>Cliques</th>
+                                    <th>Criado em</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="link in filteredLinks" :key="link.id">
+                                    <tr class="table-row">
+                                        <td class="url-cell">
+                                            <div class="url-container">
+                                                <span class="url-text" x-text="truncateUrl(link.original_url)"></span>
+                                                <a :href="link.original_url" target="_blank" class="external-link">🔗</a>
+                                            </div>
+                                        </td>
+                                        <td class="code-cell">
+                                            <div class="code-container">
+                                                <code x-text="link.short_code"></code>
+                                                <button 
+                                                    @click="copyToClipboard(`${window.location.origin}/${link.short_code}`)"
+                                                    class="copy-btn-small"
+                                                    title="Copiar link"
+                                                >
+                                                    📋
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="clicks-cell">
+                                            <span class="clicks-badge" x-text="link.clicks || 0"></span>
+                                        </td>
+                                        <td class="date-cell">
+                                            <span x-text="formatDate(link.created_at)"></span>
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button 
+                                                @click="viewDetails(link.short_code)"
+                                                class="action-btn view-btn"
+                                                title="Ver detalhes"
+                                            >
+                                                👁️
+                                            </button>
+                                            <button 
+                                                @click="deleteLink(link.id)"
+                                                class="action-btn delete-btn"
+                                                title="Excluir"
+                                            >
+                                                🗑️
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                        
+                        <!-- Empty State -->
+                        <div x-show="filteredLinks.length === 0" class="empty-state">
+                            <div class="empty-icon">🔍</div>
+                            <p class="empty-text">Nenhum link encontrado</p>
+                            <a href="/" class="empty-action">Criar primeiro link</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Link Details Modal -->
+        <div x-show="showModal" class="modal-overlay" @click="closeModal">
+            <div class="modal-content" @click.stop>
+                <div class="modal-header">
+                    <h3 class="modal-title">Detalhes do Link</h3>
+                    <button @click="closeModal" class="modal-close">✕</button>
+                </div>
+                
+                <div x-show="modalLoading" class="modal-loading">
+                    <div class="loading-spinner">⏳</div>
+                    <p>Carregando detalhes...</p>
+                </div>
+                
+                <div x-show="!modalLoading && linkDetails" class="modal-body">
+                    <div class="detail-section">
+                        <h4>Informações do Link</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>URL Original:</label>
+                                <span x-text="linkDetails?.link?.original_url"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Código Curto:</label>
+                                <span x-text="linkDetails?.link?.short_code"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Total de Cliques:</label>
+                                <span x-text="linkDetails?.link?.clicks || 0"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Criado em:</label>
+                                <span x-text="formatDate(linkDetails?.link?.created_at)"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>Últimos Cliques</h4>
+                        <div class="clicks-list">
+                            <template x-for="click in linkDetails?.clicks?.slice(0, 10)" :key="click.id">
+                                <div class="click-item">
+                                    <div class="click-info">
+                                        <span class="click-time" x-text="formatDateTime(click.clicked_at)"></span>
+                                        <span class="click-ip" x-text="click.ip_address"></span>
+                                    </div>
+                                    <div class="click-details">
+                                        <span class="click-referer" x-text="click.referer || 'Direto'"></span>
+                                    </div>
+                                </div>
+                            </template>
+                            
+                            <div x-show="!linkDetails?.clicks?.length" class="no-clicks">
+                                <p>Ainda não há cliques neste link</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span class="logo-icon">🥑</span>
+                    <span class="logo-text">Links Abacate</span>
+                </div>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Encurtar</a>
+                    <a href="#" class="footer-link">Sobre</a>
+                    <a href="#" class="footer-link">Contato</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Links Abacate. Feito com 💚 por PachiCodes</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

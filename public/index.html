@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥑 Links Abacate - Encurtador de URLs</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">🥑</span>
+                <span class="logo-text">Links Abacate</span>
+            </div>
+            <nav class="nav">
+                <a href="/" class="nav-link active">Encurtar</a>
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1 class="hero-title">
+                    Encurte seus links com 
+                    <span class="highlight">estilo</span> 🥑
+                </h1>
+                <p class="hero-subtitle">
+                    Transforme URLs longas em links curtos e acompanhe suas estatísticas em tempo real
+                </p>
+            </section>
+
+            <!-- URL Shortener Form -->
+            <section class="shortener" x-data="urlShortener()">
+                <div class="form-container">
+                    <form @submit.prevent="shortenUrl" class="shortener-form">
+                        <div class="input-group">
+                            <input 
+                                type="url" 
+                                x-model="url"
+                                placeholder="Cole sua URL aqui..."
+                                class="url-input"
+                                required
+                                :disabled="loading"
+                            >
+                            <button 
+                                type="submit" 
+                                class="submit-btn"
+                                :disabled="loading || !url"
+                                :class="{'loading': loading}"
+                            >
+                                <span x-show="!loading">Encurtar</span>
+                                <span x-show="loading" class="spinner">⏳</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Error Message -->
+                    <div x-show="error" class="error-message" x-text="error"></div>
+
+                    <!-- Success Result -->
+                    <div x-show="result" class="result-container">
+                        <div class="result-card">
+                            <div class="result-header">
+                                <span class="result-icon">✅</span>
+                                <span class="result-title">Link encurtado com sucesso!</span>
+                            </div>
+                            
+                            <div class="result-content">
+                                <div class="url-display">
+                                    <label class="url-label">URL Original:</label>
+                                    <div class="url-value original" x-text="result?.original_url"></div>
+                                </div>
+                                
+                                <div class="url-display">
+                                    <label class="url-label">URL Encurtada:</label>
+                                    <div class="url-value short">
+                                        <span x-text="result?.short_url"></span>
+                                        <button 
+                                            @click="copyToClipboard(result?.short_url)"
+                                            class="copy-btn"
+                                            :class="{'copied': copied}"
+                                        >
+                                            <span x-show="!copied">📋</span>
+                                            <span x-show="copied">✅</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="features">
+                <h2 class="features-title">Por que escolher o Links Abacate?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3 class="feature-title">Super Rápido</h3>
+                        <p class="feature-description">
+                            Encurte suas URLs em segundos com nosso sistema otimizado
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3 class="feature-title">Analytics Completo</h3>
+                        <p class="feature-description">
+                            Acompanhe cliques, origem das visitas e muito mais
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3 class="feature-title">Seguro & Confiável</h3>
+                        <p class="feature-description">
+                            Seus links estão seguros com nossa infraestrutura robusta
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span class="logo-icon">🥑</span>
+                    <span class="logo-text">Links Abacate</span>
+                </div>
+                <div class="footer-links">
+                    <a href="/dashboard" class="footer-link">Dashboard</a>
+                    <a href="#" class="footer-link">Sobre</a>
+                    <a href="#" class="footer-link">Contato</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Links Abacate. Feito com 💚 por PachiCodes</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
