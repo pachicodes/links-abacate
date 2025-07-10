@@ -1,41 +1,50 @@
 # 🔧 Solução para Deploy na Vercel
 
-## Problema Identificado
+## ⚠️ Problema Persistente
 
-O erro `Unexpected token 'T', "The page c"... is not valid JSON` acontece porque:
+Se ainda estiver recebendo `Unexpected token 'T', "The page c"... is not valid JSON`, implementei uma nova solução:
 
-1. **Ambiente Serverless**: A Vercel usa funções serverless que não suportam SQLite
-2. **Roteamento**: As rotas da API não estavam configuradas corretamente
-3. **Resposta HTML**: O servidor estava retornando HTML em vez de JSON para as rotas da API
+### 🆕 Nova Estrutura (Funções Serverless Separadas)
 
-## Soluções Implementadas
-
-### 1. **Estrutura de Arquivos**
 ```
 ├── api/
-│   └── server.js          # Servidor para Vercel (sem SQLite)
-├── server.js              # Servidor local (com SQLite)
-├── index.js               # Ponto de entrada para Vercel
-└── vercel.json            # Configuração da Vercel
+│   ├── shorten.js         # Função para encurtar URLs
+│   ├── stats.js           # Função para estatísticas  
+│   └── [...slug].js       # Função para páginas e redirecionamentos
+├── public/
+│   ├── debug.js           # Script para debug da API
+│   └── ...
+└── vercel.json            # Nova configuração
 ```
 
-### 2. **Configuração vercel.json**
-- Define rotas para API e páginas estáticas
-- Configura o build para usar `@vercel/node`
-- Define timeout adequado para funções
+### 🔍 Como Debuggar
 
-### 3. **Servidor Dual**
-- **Local**: `server.js` - usa SQLite para persistência
-- **Produção**: `api/server.js` - usa armazenamento em memória
+1. **Acesse o site com debug**:
+   ```
+   https://links-abacate.vercel.app/?debug=true
+   ```
 
-### 4. **Melhor Tratamento de Erros**
-- Logs detalhados no frontend
-- Verificação de Content-Type nas respostas
-- Mensagens de erro mais informativas
+2. **Abra o Console do Navegador** (F12)
 
-## Como Funciona Agora
+3. **Verifique os logs** da API
 
-### Desenvolvimento Local
+4. **Teste manualmente**:
+   ```javascript
+   fetch('/api/shorten', {
+     method: 'POST', 
+     headers: {'Content-Type': 'application/json'},
+     body: JSON.stringify({url: 'https://google.com'})
+   }).then(r => r.text()).then(console.log)
+   ```
+
+### 🛠️ Mudanças Implementadas
+
+- ✅ **Funções serverless separadas** (mais confiável)
+- ✅ **Headers CORS explícitos** 
+- ✅ **Content-Type forçado para JSON**
+- ✅ **Melhor tratamento de erros**
+- ✅ **Debug logs detalhados**
+- ✅ **Fallback para erros de parsing**
 ```bash
 npm start  # Usa server.js com SQLite
 ```
